@@ -44,7 +44,7 @@ open class FlickrClient: Flickring {
     
     fileprivate func call(_ method: String, callback: @escaping (Result) -> ()) {
         guard let url = URL(string: Const.basePath + method) else {
-            let result = Result.Error(nil, NSError(domain: "com.flickr.client", code: 909, userInfo: nil))
+            let result = Result.error(nil, NSError(domain: "com.flickr.client", code: 909, userInfo: nil))
             callback(result)
             return
         }
@@ -55,7 +55,7 @@ open class FlickrClient: Flickring {
             var dictionary: NSDictionary?
             
             guard let data = data else {
-                let result = Result.Error(nil, NSError(domain: "com.flickr.client", code: 909, userInfo: nil))
+                let result = Result.error(nil, NSError(domain: "com.flickr.client", code: 909, userInfo: nil))
                 callback(result)
                 return
             }
@@ -69,7 +69,7 @@ open class FlickrClient: Flickring {
             FlickrClient.queue.addOperation {
                 var result = Result.success(response, [])
                 if error != nil {
-                    result = Result.Error(response, error)
+                    result = Result.error(response, error)
                 }
                 result = FlickrFeedInterpreter().interpret(json: dictionary, urlResponse: response)
                 callback(result)

@@ -14,7 +14,7 @@ protocol FlickrFeedInterpreting {
 class FlickrFeedInterpreter: FlickrFeedInterpreting {
     func interpret(json: NSDictionary?, urlResponse: URLResponse?) -> Result {
         guard let json = json, let feedItemsJson = json["items"] as? [[String: Any]] else {
-            let result = Result.Error(nil, NSError(domain: "com.flickr.client", code: 909, userInfo: nil))
+            let result = Result.error(nil, NSError(domain: "com.flickr.client", code: 909, userInfo: nil))
             return result
         }
         let photos: [FlickrPhoto] = feedItemsJson.flatMap { innerJson in
