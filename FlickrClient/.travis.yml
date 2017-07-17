@@ -1,4 +1,6 @@
 language: objective-c
+osx_image: xcode8.3
+sudo: false
 
 before_script:
     - brew update && brew upgrade xctool
