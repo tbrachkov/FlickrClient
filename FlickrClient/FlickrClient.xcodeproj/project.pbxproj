@@ -337,6 +337,7 @@
 				4854970B518BB2632D3FA599 /* [CP] Embed Pods Frameworks */,
 				8B4779F56CA5E9060B97426F /* [CP] Copy Pods Resources */,
 				BEBC04A31F1D40470066665A /* Embed Frameworks */,
+				BEADCC761F1D73D7002A8AE0 /* SwiftLint */,
 			);
 			buildRules = (
 			);
@@ -556,6 +557,20 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FlickrClient/Pods-FlickrClient-resources.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		BEADCC761F1D73D7002A8AE0 /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "${PODS_ROOT}/SwiftLint/swiftlint";
 		};
 		C77463F66F5A5A98E8E1FD8E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;

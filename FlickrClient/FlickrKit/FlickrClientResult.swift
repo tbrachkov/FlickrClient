@@ -10,31 +10,28 @@ import Foundation
 
 public enum Result {
     case success(URLResponse?, [FlickrPhoto])
-    case Error(URLResponse?, NSError?)
-    
+    case error(URLResponse?, NSError?)
     public func data() -> [FlickrPhoto] {
         switch self {
         case .success(_, let photos):
             return photos
-        case .Error(_, _):
+        case .error(_, _):
             return []
         }
     }
-    
     public func response() -> URLResponse? {
         switch self {
         case .success(let response, _):
             return response
-        case .Error(let response, _):
+        case .error(let response, _):
             return response
         }
     }
-    
-    public func error() -> NSError? {
+    public func getError() -> NSError? {
         switch self {
         case .success(_, _):
             return nil
-        case .Error(_, let error):
+        case .error(_, let error):
             return error
         }
     }
