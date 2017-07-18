@@ -7,11 +7,12 @@
 //
 
 import Foundation
+import SwiftyJSON
 @testable import FlickrKit
 
 class MockFlickrFeedInterpreter: FlickrFeedInterpreting {
 
-    func interpret(json: NSDictionary?, urlResponse: URLResponse?) -> Result {
+    func interpret(json: JSON, urlResponse: URLResponse?) -> Result {
         
         return Result.success(urlResponse, [FlickrPhoto(title: "Demo Demo", media: "https://demo.com", published: "2017-07-17T21:04:27Z")])
     }

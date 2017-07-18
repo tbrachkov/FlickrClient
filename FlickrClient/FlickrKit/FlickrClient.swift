@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import SwiftyJSON
 
 public protocol Flickring {
-    func getPhotoFeed(callback: @escaping (Result) -> ())
+    func getPhotoFeed(callback: @escaping (Result) -> Void)
 }
 
 open class FlickrClient: Flickring {
@@ -31,18 +32,17 @@ open class FlickrClient: Flickring {
     // MARK: -
     // MARK: Retrieving photos
     
-    open func getPhotoFeed(callback: @escaping (Result) -> ()) {
+    open func getPhotoFeed(callback: @escaping (Result) -> Void) {
         call("?format=json&nojsoncallback=1", callback: callback)
     }
 
     // MARK: -
     // MARK: Retrieving search tag
 
-    
     // MARK: -
     // MARK: Call the api
     
-    fileprivate func call(_ method: String, callback: @escaping (Result) -> ()) {
+    fileprivate func call(_ method: String, callback: @escaping (Result) -> Void) {
         guard let url = URL(string: Const.basePath + method) else {
             let result = Result.error(nil, NSError(domain: "com.flickr.client", code: 909, userInfo: nil))
             callback(result)
@@ -52,19 +52,21 @@ open class FlickrClient: Flickring {
         
         let task = URLSession.shared.dataTask(with: request, completionHandler: { data, response, error in
             var error: NSError? = error as NSError?
-            var dictionary: NSDictionary?
             
             guard let data = data else {
                 let result = Result.error(nil, NSError(domain: "com.flickr.client", code: 909, userInfo: nil))
                 callback(result)
                 return
             }
+            let dictionary = JSON(data: data)
+            //Using SwiftyJSON because of error NSCocoaErrorDomain Code=3840 for the JSONSerialization.jsonObject
             
-            do {
-                dictionary = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? NSDictionary
-            } catch let err as NSError {
-                error = err
-            }
+//            do {
+//                dictionary = JSON(data: data)
+//                dictionary = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? NSDictionary
+//            } catch let err as NSError {
+//                error = err
+//            }
             
             FlickrClient.queue.addOperation {
                 var result = Result.success(response, [])

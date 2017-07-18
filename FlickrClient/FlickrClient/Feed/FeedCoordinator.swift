@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import CoreData
 
 class FeedCoordinator: Coordinator {
     let navigationController: UINavigationController
