@@ -7,13 +7,15 @@
 //
 
 import XCTest
+import SwiftyJSON
+
 @testable import FlickrKit
 
 class FlickrKitTests: XCTestCase {
     
     class MockFlickrClient: Flickring {
         open func getPhotoFeed(callback: @escaping (Result) -> ()) {
-            callback(Result.Error(nil, NSError(domain: "com.flickr.client", code: 909, userInfo: nil)))
+            callback(Result.error(nil, NSError(domain: "com.flickr.client", code: 909, userInfo: nil)))
         }
     }
     
@@ -73,12 +75,12 @@ class FlickrKitTests: XCTestCase {
     
     func testInpterpreterParsing() {
         let exp = expectation(description: "inpterpreterParsing")
-        let dict = ["items": [
+        let dict = JSON(["items": [
                 ["title": "Demo Demo",
                  "media": ["m": "https://demo.com"],
                  "published": "2017-07-17T21:04:27Z"
                 ]
-            ]] as NSDictionary
+            ]])
         let intrMock = MockFlickrFeedInterpreter().interpret(json: nil, urlResponse: nil)
         let intr = FlickrFeedInterpreter().interpret(json: dict, urlResponse: nil)
         

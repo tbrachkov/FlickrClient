@@ -5,4 +5,12 @@ target "FlickrClient" do
     pod 'SDWebImage', '~>3.8'
     pod 'ReachabilitySwift', '~> 3'
     pod 'SwiftLint'
+    pod 'SwiftyJSON'
+end
+
+target "FlickrKit" do
+    pod 'SwiftyJSON'
+    target "FlickrKitTests" do
+        inherit! :search_paths
+    end
 end
