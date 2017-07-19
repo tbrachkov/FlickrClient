@@ -11,7 +11,7 @@ import CoreData
 
 class FeedViewController: UIViewController {
 
-// MARK:- Properties
+// MARK: - Properties -
     @IBOutlet weak var collectionView: UICollectionView!
     var refresher: UIRefreshControl!
 
@@ -40,6 +40,7 @@ class FeedViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.title = "Feed"
         self.collectionView.register(UINib(nibName: "PhotoCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "photoCell")
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -102,12 +103,14 @@ extension FeedViewController: UICollectionViewDelegate, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoCollectionViewCell
         let photo = fetchedResultsController?.object(at: indexPath)
-        cell.configureCell(photo?.imageLink ?? "http://crestaproject.com/demo/nucleare-pro/wp-content/themes/nucleare-pro/images/no-image-box.png")
+        cell.configureCell(photo?.imageLink ?? "http://crestaproject.com/demo/nucleare-pro/wp-content/themes/nucleare-pro/images/no-image-box.png", name: photo?.name ?? "")
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as! PhotoCollectionViewCell
-        
+        if let photo = cell.storedImage {
+            self.presenter.didSelectPhoto(photo)
+        }
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 0
@@ -119,7 +122,7 @@ extension FeedViewController: UICollectionViewDelegate, UICollectionViewDataSour
         return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: collectionView.bounds.size.width/3, height: collectionView.bounds.size.width/3)
+        return CGSize(width: collectionView.bounds.size.width/3, height: collectionView.bounds.size.width/2)
     }
 }
 
@@ -163,8 +166,7 @@ extension FeedViewController: NSFetchedResultsControllerDelegate {
                     for indexPath in self.updatedIndexPaths {
                         self.collectionView.reloadItems(at: [indexPath])
                     }
-            }
-                ,completion: nil)
+            }, completion: nil)
         }
     }
 }

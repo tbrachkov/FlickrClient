@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 class PhotoDetailsPresenter {
     let interactor: PhotoDetailsInteractorInput
@@ -22,6 +23,9 @@ class PhotoDetailsPresenter {
 // MARK: - User Events -
 
 extension PhotoDetailsPresenter: PhotoDetailsPresenterInput {
+    func savePhoto(_ photo: UIImage) {
+        self.interactor.savePhoto(photo)
+    }
     func viewCreated() {
 
     }

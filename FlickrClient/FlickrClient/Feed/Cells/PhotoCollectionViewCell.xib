@@ -21,19 +21,53 @@
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="LVD-me-RCI">
                         <rect key="frame" x="0.0" y="0.0" width="178" height="144"/>
                     </imageView>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jRZ-7J-FwU">
+                        <rect key="frame" x="0.0" y="94" width="178" height="50"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="gradient" translatesAutoresizingMaskIntoConstraints="NO" id="aoZ-ZK-ObQ">
+                                <rect key="frame" x="0.0" y="0.0" width="178" height="50"/>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HTl-cA-oOU">
+                                <rect key="frame" x="8" y="4" width="162" height="42"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="HTl-cA-oOU" firstAttribute="leading" secondItem="jRZ-7J-FwU" secondAttribute="leading" constant="8" id="1Va-Cn-YNs"/>
+                            <constraint firstAttribute="height" constant="50" id="1bf-gG-FRJ"/>
+                            <constraint firstItem="aoZ-ZK-ObQ" firstAttribute="leading" secondItem="jRZ-7J-FwU" secondAttribute="leading" id="DHv-yv-WA2"/>
+                            <constraint firstAttribute="bottom" secondItem="aoZ-ZK-ObQ" secondAttribute="bottom" id="ODt-km-Ity"/>
+                            <constraint firstAttribute="trailing" secondItem="aoZ-ZK-ObQ" secondAttribute="trailing" id="c4P-fx-mvP"/>
+                            <constraint firstAttribute="bottom" secondItem="HTl-cA-oOU" secondAttribute="bottom" constant="4" id="e9R-2Z-VrD"/>
+                            <constraint firstItem="aoZ-ZK-ObQ" firstAttribute="top" secondItem="jRZ-7J-FwU" secondAttribute="top" id="ebe-4m-SC5"/>
+                            <constraint firstAttribute="trailing" secondItem="HTl-cA-oOU" secondAttribute="trailing" constant="8" id="ga9-Um-YuE"/>
+                            <constraint firstItem="HTl-cA-oOU" firstAttribute="top" secondItem="jRZ-7J-FwU" secondAttribute="top" constant="4" id="zaD-pQ-zF3"/>
+                        </constraints>
+                    </view>
                 </subviews>
             </view>
             <constraints>
                 <constraint firstAttribute="bottom" secondItem="LVD-me-RCI" secondAttribute="bottom" id="Cpf-0s-dfM"/>
+                <constraint firstItem="jRZ-7J-FwU" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="Nja-dF-XJK"/>
                 <constraint firstAttribute="trailing" secondItem="LVD-me-RCI" secondAttribute="trailing" id="Ovm-lg-e42"/>
                 <constraint firstItem="LVD-me-RCI" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="VwK-7o-LF6"/>
                 <constraint firstItem="LVD-me-RCI" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="b5l-yg-DmB"/>
+                <constraint firstAttribute="trailing" secondItem="jRZ-7J-FwU" secondAttribute="trailing" id="mTf-4N-b3A"/>
+                <constraint firstAttribute="bottom" secondItem="jRZ-7J-FwU" secondAttribute="bottom" id="zSY-yD-Dlt"/>
             </constraints>
             <size key="customSize" width="178" height="144"/>
             <connections>
+                <outlet property="bottomContainerView" destination="jRZ-7J-FwU" id="CjW-gY-4zl"/>
                 <outlet property="imageView" destination="LVD-me-RCI" id="hfE-dL-xMx"/>
+                <outlet property="nameLabel" destination="HTl-cA-oOU" id="6yC-WO-sFm"/>
             </connections>
             <point key="canvasLocation" x="109" y="105"/>
         </collectionViewCell>
     </objects>
+    <resources>
+        <image name="gradient" width="100" height="33"/>
+    </resources>
 </document>

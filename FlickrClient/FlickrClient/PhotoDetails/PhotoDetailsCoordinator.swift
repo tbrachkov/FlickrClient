@@ -11,23 +11,23 @@ import UIKit
 
 class PhotoDetailsCoordinator: Coordinator {
     let navigationController: UINavigationController
+    let photo: UIImage
     var children: [Coordinator] = []
-//    weak var delegate: PhotoDetailsCoordinatorDelegate?
 
-    init(navigationController: UINavigationController) {
+    init(navigationController: UINavigationController, photo: UIImage) {
         self.navigationController = navigationController
+        self.photo = photo
     }
 
     func start() {
         let interactor = PhotoDetailsInteractor()
         let presenter = PhotoDetailsPresenter(interactor: interactor, coordinator: self)
-        let vc = PhotoDetailsViewController(presenter: presenter)
+        let vc = PhotoDetailsViewController(presenter: presenter, photo: photo)
 
         interactor.output = presenter
         presenter.output = vc
 
-        // FIXME: Display as you need
-        // navigationController.setViewControllers([vc], animated: false)
+        navigationController.pushViewController(vc, animated: true)
     }
 }
 

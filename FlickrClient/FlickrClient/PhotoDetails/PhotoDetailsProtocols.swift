@@ -20,7 +20,7 @@ protocol PhotoDetailsCoordinatorInput {
 
 // PRESENTER -> INTERACTOR
 protocol PhotoDetailsInteractorInput {
-    
+    func savePhoto(_ photo: UIImage)
 }
 
 // INTERACTOR -> PRESENTER (indirect)
@@ -33,6 +33,7 @@ protocol PhotoDetailsInteractorOutput: class {
 // VIEW -> PRESENTER
 protocol PhotoDetailsPresenterInput {
     func viewCreated()
+    func savePhoto(_ photo: UIImage)
 }
 
 // PRESENTER -> VIEW

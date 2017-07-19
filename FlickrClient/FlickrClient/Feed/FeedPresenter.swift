@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 class FeedPresenter {
     let interactor: FeedInteractorInput
@@ -22,6 +23,9 @@ class FeedPresenter {
 // MARK: - User Events -
 
 extension FeedPresenter: FeedPresenterInput {
+    func didSelectPhoto(_ photo: UIImage) {
+        coordinator.didSelectPhoto(photo)
+    }
     func viewCreated() {
         self.interactor.requestFetchresultsController(Feed.Request.RequestFetchResultsController.initial)
     }

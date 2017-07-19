@@ -11,9 +11,14 @@ import UIKit
 
 // ======== Coordinator ======== //
 
+// COORDINATOR -> APP COORDINATOR
+protocol FeedCoordinatorDelegate: class {
+    func didSelectPhoto(_ photo: UIImage)
+}
+
 // PRESENTER -> COORDINATOR
 protocol FeedCoordinatorInput {
-
+    func didSelectPhoto(_ photo: UIImage)
 }
 
 // ======== Interactor ======== //
@@ -36,6 +41,7 @@ protocol FeedInteractorOutput: class {
 protocol FeedPresenterInput {
     func viewCreated()
     func reloadPhotos()
+    func didSelectPhoto(_ photo: UIImage)
 }
 
 // PRESENTER -> VIEW

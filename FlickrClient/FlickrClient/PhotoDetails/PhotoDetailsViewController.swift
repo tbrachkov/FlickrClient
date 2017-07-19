@@ -10,14 +10,18 @@ import UIKit
 
 class PhotoDetailsViewController: UIViewController {
 
+    @IBOutlet weak var imageView: UIImageView!
+    
     let presenter: PhotoDetailsPresenterInput
+    let photo: UIImage
 
-    convenience init(presenter: PhotoDetailsPresenterInput) {
-        self.init(presenter: presenter, nibName: nil, bundle: nil)
+    convenience init(presenter: PhotoDetailsPresenterInput, photo: UIImage) {
+        self.init(presenter: presenter, photo: photo, nibName: nil, bundle: nil)
     }
 
-    init(presenter: PhotoDetailsPresenterInput, nibName: String?, bundle: Bundle?) {
+    init(presenter: PhotoDetailsPresenterInput, photo: UIImage, nibName: String?, bundle: Bundle?) {
         self.presenter = presenter
+        self.photo = photo
         super.init(nibName: nibName, bundle: bundle)
     }
 
@@ -29,9 +33,19 @@ class PhotoDetailsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.title = "Details"
+        imageView.contentMode = .scaleAspectFit
+        imageView.image = photo
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector(saveTapped))
+
         presenter.viewCreated()
     }
 
+    func saveTapped() {
+        self.presenter.savePhoto(photo)
+    }
+    
     // MARK: - Callbacks -
 
 }

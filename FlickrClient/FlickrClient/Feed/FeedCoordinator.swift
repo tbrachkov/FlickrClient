@@ -13,7 +13,7 @@ import CoreData
 class FeedCoordinator: Coordinator {
     let navigationController: UINavigationController
     var children: [Coordinator] = []
-//    weak var delegate: FeedCoordinatorDelegate?
+    weak var delegate: FeedCoordinatorDelegate?
 
     init(navigationController: UINavigationController) {
         self.navigationController = navigationController
@@ -32,5 +32,7 @@ class FeedCoordinator: Coordinator {
 
 // PRESENTER -> COORDINATOR
 extension FeedCoordinator: FeedCoordinatorInput {
-
+    func didSelectPhoto(_ photo: UIImage) {
+        delegate?.didSelectPhoto(photo)
+    }
 }
