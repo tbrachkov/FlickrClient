@@ -14,8 +14,9 @@ protocol FlickrFeedInterpreting {
 }
 class FlickrFeedInterpreter: FlickrFeedInterpreting {
     func interpret(json: JSON, urlResponse: URLResponse?) -> Result {
+        //FIMXE: There seems to be an issue sometimes with the json data the flickr returns and can't be parsed to JSON
         guard let feedItemsJson = json.dictionary?["items"]?.array else {
-            let result = Result.error(nil, NSError(domain: "com.flickr.client", code: 909, userInfo: nil))
+            let result = Result.error(nil, NSError(domain: "com.flickr.client", code: 909, userInfo: [NSLocalizedDescriptionKey: "JSON does not exist"]))
             return result
         }
         var photos: [FlickrPhoto] = []

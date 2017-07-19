@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class AppCoordinator: Coordinator {
+class AppCoordinator: Coordinator, FeedCoordinatorDelegate {
     
     let window: UIWindow
     var children: [Coordinator] = []
@@ -30,11 +30,23 @@ class AppCoordinator: Coordinator {
     func showMain() {
         window.rootViewController = navigationController
         let feedCoordinator = FeedCoordinator(navigationController: navigationController)
+        feedCoordinator.delegate = self
         children.append(feedCoordinator)
         feedCoordinator.start()
     }
     
+    func showDetailsWithPhoto(_ photo: UIImage) {
+        let photoDetailsCoordinator = PhotoDetailsCoordinator(navigationController: navigationController, photo: photo)
+        children.append(photoDetailsCoordinator)
+        photoDetailsCoordinator.start()
+    }
+    
     // MARK: - Additional Setup -
     func setupAfterLaunch() {
+    }
+    
+    // MARK: - FeedCoordinatorDelegate -
+    func didSelectPhoto(_ photo: UIImage) {
+        self.showDetailsWithPhoto(photo)
     }
 }

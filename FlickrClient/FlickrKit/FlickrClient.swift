@@ -44,29 +44,21 @@ open class FlickrClient: Flickring {
     
     fileprivate func call(_ method: String, callback: @escaping (Result) -> Void) {
         guard let url = URL(string: Const.basePath + method) else {
-            let result = Result.error(nil, NSError(domain: "com.flickr.client", code: 909, userInfo: nil))
+            let result = Result.error(nil, NSError(domain: "com.flickr.client", code: 909, userInfo: [NSLocalizedDescriptionKey: "URL does not exist"]))
             callback(result)
             return
         }
         let request = URLRequest(url: url)
         
         let task = URLSession.shared.dataTask(with: request, completionHandler: { data, response, error in
-            var error: NSError? = error as NSError?
-            
+            let error: NSError? = error as NSError?
             guard let data = data else {
-                let result = Result.error(nil, NSError(domain: "com.flickr.client", code: 909, userInfo: nil))
+                let result = Result.error(nil, NSError(domain: "com.flickr.client", code: 909, userInfo: [NSLocalizedDescriptionKey: "Data does not exist"]))
                 callback(result)
                 return
             }
             let dictionary = JSON(data: data)
             //Using SwiftyJSON because of error NSCocoaErrorDomain Code=3840 for the JSONSerialization.jsonObject
-            
-//            do {
-//                dictionary = JSON(data: data)
-//                dictionary = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? NSDictionary
-//            } catch let err as NSError {
-//                error = err
-//            }
             
             FlickrClient.queue.addOperation {
                 var result = Result.success(response, [])
