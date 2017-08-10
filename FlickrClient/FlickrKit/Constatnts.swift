@@ -9,6 +9,6 @@
 import Foundation
 
 internal struct Const {
-    static let basePath = "https://api.flickr.com/services/feeds/photos_public.gne"
+    static let basePath = "https://api.flickr.com/services/"
     static let APIKey = "40025c16ac0058ec6e69dbca0dd9fc03"
 }

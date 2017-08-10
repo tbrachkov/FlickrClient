@@ -22,7 +22,7 @@ class CoreDataStackService: NSObject {
 
 // MARK: Public
 extension CoreDataStackService {
-    func addPhotos(_ photos: [FlickrPhoto]) -> [Photo] {
+    func addPhotos(_ photos: [FlickrPhoto], forTag: String = "") -> [Photo] {
         var resultPhotos: [Photo] = []
         for picture in photos {
             if let datePublished = picture.published.dateFromISO8601 {
@@ -31,6 +31,7 @@ extension CoreDataStackService {
                     photo.imageLink = picture.media
                     photo.name = picture.title
                     photo.published = datePublished
+                    photo.tag = forTag
                     resultPhotos.append(photo)
                 }
             }

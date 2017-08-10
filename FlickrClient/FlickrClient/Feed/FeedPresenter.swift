@@ -26,10 +26,16 @@ extension FeedPresenter: FeedPresenterInput {
         coordinator?.didSelectPhoto(photo)
     }
     func viewCreated() {
-        self.interactor.requestFetchresultsController(Feed.Request.RequestFetchResultsController.initial)
+        self.interactor.requestFetchresultsController(Feed.Request.RequestFetchResultsController.feed)
     }
     func reloadPhotos() {
-        self.interactor.performPhotoFetch(Feed.Request.StartFlickrImagesFetch.last)
+        self.interactor.performPhotoFetch(Feed.Request.StartFlickrImagesFetch.feed)
+    }
+    func searchFor(tag: String) {
+        self.interactor.performPhotoFetch(Feed.Request.StartFlickrImagesFetch.tag(searchTag: tag))
+    }
+    func requestFetchresultsController(_ request: Feed.Request.RequestFetchResultsController) {
+        self.interactor.requestFetchresultsController(request)
     }
 }
 
@@ -37,7 +43,7 @@ extension FeedPresenter: FeedPresenterInput {
 extension FeedPresenter: FeedInteractorOutput {
     func returnFetchresultsController(_ result: Feed.Response.ReturnFetchResultsController) {
         self.output?.returnFetchresultsController(result)
-        self.interactor.performPhotoFetch(Feed.Request.StartFlickrImagesFetch.last)
+        self.interactor.performPhotoFetch(Feed.Request.StartFlickrImagesFetch.feed)
     }
 
     func fetchedFlickrPhotos(_ result: Feed.Response.FinishedFlickrImagesFetch) {

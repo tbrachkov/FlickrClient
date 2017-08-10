@@ -18,7 +18,7 @@ open class FlickrClient: Flickring {
     open var apiKey: String
     private static var queue: OperationQueue {
         let operationQueue = OperationQueue()
-        operationQueue.maxConcurrentOperationCount = 4
+        operationQueue.maxConcurrentOperationCount = 1
         return operationQueue
     }
     
@@ -33,17 +33,22 @@ open class FlickrClient: Flickring {
     // MARK: Retrieving photos
     
     open func getPhotoFeed(callback: @escaping (Result) -> Void) {
-        call("?format=json&nojsoncallback=1", callback: callback)
+        call((option: .feed, method:"feeds/photos_public.gne?format=json&nojsoncallback=1"), callback: callback)
     }
 
     // MARK: -
     // MARK: Retrieving search tag
 
+    open func getPhotosFor(tag: String, callback: @escaping (Result) -> Void) {
+        let escapedSearchText = tag.addingPercentEncoding(withAllowedCharacters:.urlHostAllowed) ?? ""
+        call((option: .tag, method: "rest/?method=flickr.photos.search&api_key=\(apiKey)&text=\(escapedSearchText)&format=json&nojsoncallback=1"), callback: callback)
+    }
+    
     // MARK: -
     // MARK: Call the api
     
-    fileprivate func call(_ method: String, callback: @escaping (Result) -> Void) {
-        guard let url = URL(string: Const.basePath + method) else {
+    fileprivate func call(_ options: (option: FlickerSearchOptions, method: String), callback: @escaping (Result) -> Void) {
+        guard let url = URL(string: Const.basePath + options.method) else {
             let result = Result.error(nil, NSError(domain: "com.flickr.client", code: 909, userInfo: [NSLocalizedDescriptionKey: "URL does not exist"]))
             callback(result)
             return
@@ -58,14 +63,13 @@ open class FlickrClient: Flickring {
                 return
             }
             let dictionary = JSON(data: data)
-            //Using SwiftyJSON because of error NSCocoaErrorDomain Code=3840 for the JSONSerialization.jsonObject
             
             FlickrClient.queue.addOperation {
                 var result = Result.success(response, [])
                 if error != nil {
                     result = Result.error(response, error)
                 }
-                result = FlickrFeedInterpreter().interpret(json: dictionary, urlResponse: response)
+                result = FlickrFeedInterpreter().interpret(option: options.option, json: dictionary, urlResponse: response)
                 callback(result)
             }
         })

@@ -15,6 +15,7 @@ extension Photo {
     }
 
     @NSManaged public var name: String?
+    @NSManaged public var tag: String?
     @NSManaged public var imageLink: String?
     @NSManaged public var published: Date?
     

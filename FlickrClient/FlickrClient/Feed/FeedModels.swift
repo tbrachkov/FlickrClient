@@ -18,10 +18,12 @@ enum Feed {
 
 extension Feed.Request {
     enum StartFlickrImagesFetch {
-        case last
+        case feed
+        case tag(searchTag: String)
     }
     enum RequestFetchResultsController {
-        case initial
+        case feed
+        case tag(searchTag: String)
     }
 }
 

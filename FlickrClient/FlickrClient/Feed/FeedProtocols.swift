@@ -40,8 +40,10 @@ protocol FeedInteractorOutput: class {
 // VIEW -> PRESENTER
 protocol FeedPresenterInput {
     func viewCreated()
+    func searchFor(tag: String)
     func reloadPhotos()
     func didSelectPhoto(_ photo: UIImage)
+    func requestFetchresultsController(_ request: Feed.Request.RequestFetchResultsController)
 }
 
 // PRESENTER -> VIEW

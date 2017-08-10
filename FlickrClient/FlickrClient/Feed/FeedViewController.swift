@@ -19,8 +19,32 @@ class FeedViewController: UIViewController {
     var deletedIndexPaths: [IndexPath] = []
     var updatedIndexPaths: [IndexPath] = []
     var fetchedResultsController: NSFetchedResultsController<Photo>?
+    var searchBarActive: Bool = false
+    var photosCount = 0
     
     let presenter: FeedPresenterInput
+    
+    lazy var searchBar: UISearchBar = {
+        let s = UISearchBar()
+        s.placeholder = "Search Tags"
+        s.delegate = self
+        s.tintColor = .black
+        s.barStyle = .default
+        s.sizeToFit()
+        return s
+    }()
+    
+    fileprivate var searchTagPrivate: String {
+        get {
+            return self.searchTag
+        }
+        set {
+            self.searchTag = newValue
+            NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(self.updateSearch), object: nil)
+            self.perform(#selector(self.updateSearch), with: nil, afterDelay: 0.5)
+        }
+    }
+    var searchTag = ""
 
     convenience init(presenter: FeedPresenterInput) {
         self.init(presenter: presenter, nibName: nil, bundle: nil)
@@ -42,6 +66,8 @@ class FeedViewController: UIViewController {
         
         self.title = "Feed"
         self.collectionView.register(UINib(nibName: "PhotoCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "photoCell")
+        collectionView.register(UICollectionViewCell.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "headerCell")
+
         collectionView.delegate = self
         collectionView.dataSource = self
         
@@ -55,6 +81,10 @@ class FeedViewController: UIViewController {
     }
     
     func loadData() {
+        if searchBarActive {
+            stopRefresher()
+            return
+        }
         self.presenter.reloadPhotos()
         //Call this to stop refresher
         stopRefresher()
@@ -71,9 +101,45 @@ class FeedViewController: UIViewController {
             fatalError("Could not fetch photos")
         }
     }
+}
 
-    // MARK: - Callbacks -
+// MARK: - Search Logic -
 
+extension FeedViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText.characters.count > 0 {
+            self.searchBarActive = true
+            self.searchTagPrivate = searchText
+        } else {
+            cancelSearching()
+        }
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        self .cancelSearching()
+    }
+    
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        self.searchBarActive = true
+        self.searchBar.setShowsCancelButton(true, animated: true)
+    }
+    
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        self.searchBarActive = false
+        self.presenter.requestFetchresultsController(.feed)
+        self.searchBar.setShowsCancelButton(false, animated: true)
+    }
+    func cancelSearching() {
+        self.searchBarActive = false
+        self.presenter.requestFetchresultsController(.feed)
+        self.searchBar.resignFirstResponder()
+        self.searchBar.text = ""
+    }
+    
+    func updateSearch() {
+        self.presenter.searchFor(tag: searchTag)
+        self.presenter.requestFetchresultsController(.tag(searchTag: self.searchTag))
+    }
 }
 
 // MARK: - Display Logic -
@@ -90,6 +156,8 @@ extension FeedViewController: FeedPresenterOutput {
             self.fetchedResultsController = frc
             self.fetchedResultsController?.delegate = self
             self.performFetch(fetchedResultsController: frc)
+            self.photosCount = self.fetchedResultsController?.sections![0].numberOfObjects ?? 0
+            collectionView?.reloadData()
         }
     }
 }
@@ -97,8 +165,7 @@ extension FeedViewController: FeedPresenterOutput {
 
 extension FeedViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        let sectionInfo = fetchedResultsController?.sections![section]
-        return sectionInfo?.numberOfObjects ?? 0
+        return photosCount
     }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoCollectionViewCell
@@ -123,6 +190,19 @@ extension FeedViewController: UICollectionViewDelegate, UICollectionViewDataSour
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collectionView.bounds.size.width/3, height: collectionView.bounds.size.width/2)
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSize(width: view.frame.width, height: 40)
+    }
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "headerCell", for: indexPath)
+            header.addSubview(searchBar)
+            searchBar.translatesAutoresizingMaskIntoConstraints = false
+            searchBar.leftAnchor.constraint(equalTo: header.leftAnchor).isActive = true
+            searchBar.rightAnchor.constraint(equalTo: header.rightAnchor).isActive = true
+            searchBar.topAnchor.constraint(equalTo: header.topAnchor).isActive = true
+            searchBar.bottomAnchor.constraint(equalTo: header.bottomAnchor).isActive = true
+            return header
     }
 }
 
@@ -155,18 +235,24 @@ extension FeedViewController: NSFetchedResultsControllerDelegate {
     
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         DispatchQueue.main.async {
-            self.collectionView.performBatchUpdates ({
-                    () -> Void in
-                    for indexPath in self.insertedIndexPaths {
-                        self.collectionView.insertItems(at: [indexPath])
-                    }
-                    for indexPath in self.deletedIndexPaths {
-                        self.collectionView.deleteItems(at: [indexPath])
-                    }
-                    for indexPath in self.updatedIndexPaths {
-                        self.collectionView.reloadItems(at: [indexPath])
-                    }
-            }, completion: nil)
+            if self.photosCount == 0 {
+                self.collectionView.reloadData()
+            } else {
+                self.collectionView.performBatchUpdates ({
+                        () -> Void in
+                        for indexPath in self.insertedIndexPaths {
+                            self.collectionView.insertItems(at: [indexPath])
+                            self.photosCount += 1
+                        }
+                        for indexPath in self.deletedIndexPaths {
+                            self.collectionView.deleteItems(at: [indexPath])
+                            self.photosCount -= 1
+                        }
+                        for indexPath in self.updatedIndexPaths {
+                            self.collectionView.reloadItems(at: [indexPath])
+                        }
+                }, completion: nil)
+            }
         }
     }
 }
