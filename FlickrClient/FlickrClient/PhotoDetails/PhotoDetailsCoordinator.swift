@@ -31,7 +31,4 @@ class PhotoDetailsCoordinator: Coordinator {
     }
 }
 
-// PRESENTER -> COORDINATOR
-extension PhotoDetailsCoordinator: PhotoDetailsCoordinatorInput {
-
-}
+extension PhotoDetailsCoordinator: PhotoDetailsCoordinatorInput {}

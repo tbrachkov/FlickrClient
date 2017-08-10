@@ -11,7 +11,7 @@ import UIKit
 
 class PhotoDetailsPresenter {
     let interactor: PhotoDetailsInteractorInput
-    let coordinator: PhotoDetailsCoordinatorInput
+    weak var coordinator: PhotoDetailsCoordinatorInput?
     weak var output: PhotoDetailsPresenterOutput?
 
     init(interactor: PhotoDetailsInteractorInput, coordinator: PhotoDetailsCoordinatorInput) {
@@ -21,19 +21,13 @@ class PhotoDetailsPresenter {
 }
 
 // MARK: - User Events -
-
 extension PhotoDetailsPresenter: PhotoDetailsPresenterInput {
     func savePhoto(_ photo: UIImage) {
         self.interactor.savePhoto(photo)
     }
     func viewCreated() {
-
     }
 }
 
 // MARK: - Presentation Logic -
-
-// INTERACTOR -> PRESENTER (indirect)
-extension PhotoDetailsPresenter: PhotoDetailsInteractorOutput {
-
-}
+extension PhotoDetailsPresenter: PhotoDetailsInteractorOutput {}

@@ -30,7 +30,6 @@ class FeedCoordinator: Coordinator {
     }
 }
 
-// PRESENTER -> COORDINATOR
 extension FeedCoordinator: FeedCoordinatorInput {
     func didSelectPhoto(_ photo: UIImage) {
         delegate?.didSelectPhoto(photo)

@@ -17,7 +17,7 @@ protocol FeedCoordinatorDelegate: class {
 }
 
 // PRESENTER -> COORDINATOR
-protocol FeedCoordinatorInput {
+protocol FeedCoordinatorInput: class {
     func didSelectPhoto(_ photo: UIImage)
 }
 

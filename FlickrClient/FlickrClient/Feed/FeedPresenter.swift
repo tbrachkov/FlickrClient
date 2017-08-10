@@ -11,7 +11,7 @@ import UIKit
 
 class FeedPresenter {
     let interactor: FeedInteractorInput
-    let coordinator: FeedCoordinatorInput
+    weak var coordinator: FeedCoordinatorInput?
     weak var output: FeedPresenterOutput?
 
     init(interactor: FeedInteractorInput, coordinator: FeedCoordinatorInput) {
@@ -21,10 +21,9 @@ class FeedPresenter {
 }
 
 // MARK: - User Events -
-
 extension FeedPresenter: FeedPresenterInput {
     func didSelectPhoto(_ photo: UIImage) {
-        coordinator.didSelectPhoto(photo)
+        coordinator?.didSelectPhoto(photo)
     }
     func viewCreated() {
         self.interactor.requestFetchresultsController(Feed.Request.RequestFetchResultsController.initial)
@@ -35,8 +34,6 @@ extension FeedPresenter: FeedPresenterInput {
 }
 
 // MARK: - Presentation Logic -
-
-// INTERACTOR -> PRESENTER (indirect)
 extension FeedPresenter: FeedInteractorOutput {
     func returnFetchresultsController(_ result: Feed.Response.ReturnFetchResultsController) {
         self.output?.returnFetchresultsController(result)

@@ -14,14 +14,8 @@ enum PhotoDetails {
     enum DisplayData { }
 }
 
-extension PhotoDetails.Request {
+extension PhotoDetails.Request {}
 
-}
+extension PhotoDetails.Response {}
 
-extension PhotoDetails.Response {
-
-}
-
-extension PhotoDetails.DisplayData {
-    
-}
+extension PhotoDetails.DisplayData {}

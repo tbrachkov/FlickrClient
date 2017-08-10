@@ -32,10 +32,8 @@ class FeedInteractor {
 }
 
 // MARK: - Business Logic -
-
-// PRESENTER -> INTERACTOR
 extension FeedInteractor: FeedInteractorInput {
-    func performPhotoFetch(_ request: Feed.Request.StartFlickrImagesFetch)  {
+    func performPhotoFetch(_ request: Feed.Request.StartFlickrImagesFetch) {
         FeedInteractor.flickrClient.getPhotoFeed { (result) in
             switch result {
             case .error( _, let error):

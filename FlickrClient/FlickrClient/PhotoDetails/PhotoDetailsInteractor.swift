@@ -15,8 +15,6 @@ class PhotoDetailsInteractor {
 }
 
 // MARK: - Business Logic -
-
-// PRESENTER -> INTERACTOR
 extension PhotoDetailsInteractor: PhotoDetailsInteractorInput {
     func savePhoto(_ photo: UIImage) {
         PHPhotoLibrary.shared().savePhoto(image: photo, albumName: "Fickr")

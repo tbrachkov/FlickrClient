@@ -9,34 +9,18 @@
 import Foundation
 import UIKit
 
-// ======== Coordinator ======== //
+//Coordinator
+protocol PhotoDetailsCoordinatorInput: class {}
 
-// PRESENTER -> COORDINATOR
-protocol PhotoDetailsCoordinatorInput {
-
-}
-
-// ======== Interactor ======== //
-
-// PRESENTER -> INTERACTOR
+//Interactor
 protocol PhotoDetailsInteractorInput {
     func savePhoto(_ photo: UIImage)
 }
+protocol PhotoDetailsInteractorOutput: class {}
 
-// INTERACTOR -> PRESENTER (indirect)
-protocol PhotoDetailsInteractorOutput: class {
-
-}
-
-// ======== Presenter ======== //
-
-// VIEW -> PRESENTER
+//Presenter
 protocol PhotoDetailsPresenterInput {
     func viewCreated()
     func savePhoto(_ photo: UIImage)
 }
-
-// PRESENTER -> VIEW
-protocol PhotoDetailsPresenterOutput: class {
-
-}
+protocol PhotoDetailsPresenterOutput: class {}
