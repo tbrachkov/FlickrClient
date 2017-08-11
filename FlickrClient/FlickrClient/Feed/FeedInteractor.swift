@@ -13,6 +13,8 @@ import CoreData
 class FeedInteractor {
     weak var output: FeedInteractorOutput?
     static let flickrClient = FlickrClient()
+    fileprivate var fetchedResultsControllerFeed: NSFetchedResultsController<Photo>?
+    fileprivate var fetchedResultsControllerTag: NSFetchedResultsController<Photo>?
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "FlickrClient")
         container.viewContext.automaticallyMergesChangesFromParent = true
@@ -64,43 +66,47 @@ extension FeedInteractor: FeedInteractorInput {
         }
     }
     
+    private func generatePhotoFRC() -> NSFetchedResultsController<Photo> {
+        guard let fetchRequest = NSFetchRequest<Photo>(entityName: "Photo") as? NSFetchRequest<NSFetchRequestResult> else {
+            fatalError()
+        }
+        let entity = NSEntityDescription.entity(forEntityName: "Photo", in: self.persistentContainer.viewContext)
+        fetchRequest.entity = entity
+        let sortDescriptor = NSSortDescriptor(key: "published", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        let _fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.persistentContainer.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        _fetchedResultsController.delegate = self as? NSFetchedResultsControllerDelegate
+        guard let frc = _fetchedResultsController as? NSFetchedResultsController<Photo> else {
+            fatalError()
+        }
+        return frc
+    }
+    
     func requestFetchresultsController(_ request: Feed.Request.RequestFetchResultsController) {
-        
         switch request {
         case .feed:
-            guard let fetchRequest = NSFetchRequest<Photo>(entityName: "Photo") as? NSFetchRequest<NSFetchRequestResult> else {
-                fatalError()
+            if let fetchedResultsController = fetchedResultsControllerFeed {
+                fetchedResultsController.fetchRequest.predicate = nil
+                let resultFRC = Feed.Response.ReturnFetchResultsController.success(frc: fetchedResultsController)
+                self.output?.returnFetchresultsController(resultFRC)
+            } else {
+                let frc = generatePhotoFRC()
+                fetchedResultsControllerFeed = frc
+                let resultFRC = Feed.Response.ReturnFetchResultsController.success(frc: frc)
+                self.output?.returnFetchresultsController(resultFRC)
             }
-            let entity = NSEntityDescription.entity(forEntityName: "Photo", in: self.persistentContainer.viewContext)
-            fetchRequest.entity = entity
-            let sortDescriptor = NSSortDescriptor(key: "published", ascending: false)
-            fetchRequest.sortDescriptors = [sortDescriptor]
-            let _fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.persistentContainer.viewContext, sectionNameKeyPath: nil, cacheName: nil)
-            _fetchedResultsController.delegate = self as? NSFetchedResultsControllerDelegate
-            guard let frc = _fetchedResultsController as? NSFetchedResultsController<Photo> else {
-                fatalError()
-            }
-            
-            let resultFRC = Feed.Response.ReturnFetchResultsController.success(frc: frc)
-            self.output?.returnFetchresultsController(resultFRC)
         case .tag(let searchTag):
-            guard let fetchRequest = NSFetchRequest<Photo>(entityName: "Photo") as? NSFetchRequest<NSFetchRequestResult> else {
-                fatalError()
+            if let fetchedResultsController = fetchedResultsControllerTag {
+                fetchedResultsController.fetchRequest.predicate = NSPredicate(format: "tag CONTAINS[cd] %@", searchTag)
+                let resultFRC = Feed.Response.ReturnFetchResultsController.success(frc: fetchedResultsController)
+                self.output?.returnFetchresultsController(resultFRC)
+            } else {
+                let frc = generatePhotoFRC()
+                frc.fetchRequest.predicate = NSPredicate(format: "tag CONTAINS[cd] %@", searchTag)
+                fetchedResultsControllerTag = frc
+                let resultFRC = Feed.Response.ReturnFetchResultsController.success(frc: frc)
+                self.output?.returnFetchresultsController(resultFRC)
             }
-            let entity = NSEntityDescription.entity(forEntityName: "Photo", in: self.persistentContainer.viewContext)
-            fetchRequest.entity = entity
-            let sortDescriptor = NSSortDescriptor(key: "published", ascending: false)
-            fetchRequest.sortDescriptors = [sortDescriptor]
-            fetchRequest.predicate = NSPredicate(format: "tag CONTAINS[cd] %@", searchTag)
-            
-            let _fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.persistentContainer.viewContext, sectionNameKeyPath: nil, cacheName: nil)
-            _fetchedResultsController.delegate = self as? NSFetchedResultsControllerDelegate
-            guard let frc = _fetchedResultsController as? NSFetchedResultsController<Photo> else {
-                fatalError()
-            }
-            
-            let resultFRC = Feed.Response.ReturnFetchResultsController.success(frc: frc)
-            self.output?.returnFetchresultsController(resultFRC)
         }
     }
 }

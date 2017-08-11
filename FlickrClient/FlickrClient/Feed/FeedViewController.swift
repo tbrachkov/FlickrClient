@@ -21,17 +21,18 @@ class FeedViewController: UIViewController {
     var fetchedResultsController: NSFetchedResultsController<Photo>?
     var searchBarActive: Bool = false
     var photosCount = 0
-    
+    var blockOperations: [BlockOperation] = []
+
     let presenter: FeedPresenterInput
     
     lazy var searchBar: UISearchBar = {
-        let s = UISearchBar()
-        s.placeholder = "Search Tags"
-        s.delegate = self
-        s.tintColor = .black
-        s.barStyle = .default
-        s.sizeToFit()
-        return s
+        let searchBar = UISearchBar()
+        searchBar.placeholder = "Search Tags"
+        searchBar.delegate = self
+        searchBar.tintColor = .black
+        searchBar.barStyle = .default
+        searchBar.sizeToFit()
+        return searchBar
     }()
     
     fileprivate var searchTagPrivate: String {
@@ -41,7 +42,7 @@ class FeedViewController: UIViewController {
         set {
             self.searchTag = newValue
             NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(self.updateSearch), object: nil)
-            self.perform(#selector(self.updateSearch), with: nil, afterDelay: 0.5)
+            self.perform(#selector(self.updateSearch), with: nil, afterDelay: 1.0)
         }
     }
     var searchTag = ""
@@ -78,6 +79,14 @@ class FeedViewController: UIViewController {
         self.collectionView!.addSubview(refresher)
         
         presenter.viewCreated()
+    }
+    
+    deinit {
+        for operation: BlockOperation in blockOperations {
+            operation.cancel()
+        }
+        
+        blockOperations.removeAll(keepingCapacity: false)
     }
     
     func loadData() {
@@ -123,14 +132,10 @@ extension FeedViewController: UISearchBarDelegate {
         self.searchBarActive = true
         self.searchBar.setShowsCancelButton(true, animated: true)
     }
-    
-    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-        self.searchBarActive = false
-        self.presenter.requestFetchresultsController(.feed)
-        self.searchBar.setShowsCancelButton(false, animated: true)
-    }
+
     func cancelSearching() {
         self.searchBarActive = false
+        self.fetchedResultsController?.delegate = nil
         self.presenter.requestFetchresultsController(.feed)
         self.searchBar.resignFirstResponder()
         self.searchBar.text = ""
@@ -138,6 +143,7 @@ extension FeedViewController: UISearchBarDelegate {
     
     func updateSearch() {
         self.presenter.searchFor(tag: searchTag)
+        self.fetchedResultsController?.delegate = nil
         self.presenter.requestFetchresultsController(.tag(searchTag: self.searchTag))
     }
 }
@@ -165,7 +171,7 @@ extension FeedViewController: FeedPresenterOutput {
 
 extension FeedViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return photosCount
+        return self.photosCount
     }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoCollectionViewCell
@@ -209,50 +215,91 @@ extension FeedViewController: UICollectionViewDelegate, UICollectionViewDataSour
 // MARK: - Display FRC -
 
 extension FeedViewController: NSFetchedResultsControllerDelegate {
-    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        insertedIndexPaths = [IndexPath]()
-        deletedIndexPaths = [IndexPath]()
-        updatedIndexPaths = [IndexPath]()
-    }
-    
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
-        switch type {
-        case .insert:
-            insertedIndexPaths.append(newIndexPath!)
-            break
-        case .delete:
-            deletedIndexPaths.append(indexPath!)
-            break
-        case .update:
-            updatedIndexPaths.append(indexPath!)
-            break
-        case .move:
-            print("Move an item")
-            break
+        if type == NSFetchedResultsChangeType.insert {
+            print("Insert Object: \(String(describing: newIndexPath))")
+            
+            blockOperations.append(
+                BlockOperation(block: { [weak self] in
+                    if let this = self {
+                        this.collectionView!.insertItems(at: [newIndexPath!])
+                        self?.photosCount+=1
+                    }
+                })
+            )
+        } else if type == NSFetchedResultsChangeType.update {
+            print("Update Object: \(String(describing: indexPath))")
+            blockOperations.append(
+                BlockOperation(block: { [weak self] in
+                    if let this = self {
+                        this.collectionView!.reloadItems(at: [indexPath!])
+                    }
+                })
+            )
+        } else if type == NSFetchedResultsChangeType.move {
+            print("Move Object: \(String(describing: indexPath))")
+            
+            blockOperations.append(
+                BlockOperation(block: { [weak self] in
+                    if let this = self {
+                        this.collectionView!.moveItem(at: indexPath!, to: newIndexPath!)
+                    }
+                })
+            )
+        } else if type == NSFetchedResultsChangeType.delete {
+            print("Delete Object: \(String(describing: indexPath))")
+            
+            blockOperations.append(
+                BlockOperation(block: { [weak self] in
+                    if let this = self {
+                        this.collectionView!.deleteItems(at: [indexPath!])
+                        self?.photosCount-=1
+                    }
+                })
+            )
+        }
+    }
+    
+    public func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
+        
+        if type == NSFetchedResultsChangeType.insert {
+            print("Insert Section: \(sectionIndex)")
+            
+            blockOperations.append(
+                BlockOperation(block: { [weak self] in
+                    if let this = self {
+                        this.collectionView!.insertSections(NSIndexSet(index: sectionIndex) as IndexSet)
+                    }
+                })
+            )
+        } else if type == NSFetchedResultsChangeType.update {
+            print("Update Section: \(sectionIndex)")
+            blockOperations.append(
+                BlockOperation(block: { [weak self] in
+                    if let this = self {
+                        this.collectionView!.reloadSections(NSIndexSet(index: sectionIndex) as IndexSet)
+                    }
+                })
+            )
+        } else if type == NSFetchedResultsChangeType.delete {
+            print("Delete Section: \(sectionIndex)")
+            blockOperations.append(
+                BlockOperation(block: { [weak self] in
+                    if let this = self {
+                        this.collectionView!.deleteSections(NSIndexSet(index: sectionIndex) as IndexSet)
+                    }
+                })
+            )
         }
     }
     
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        DispatchQueue.main.async {
-            if self.photosCount == 0 {
-                self.collectionView.reloadData()
-            } else {
-                self.collectionView.performBatchUpdates ({
-                        () -> Void in
-                        for indexPath in self.insertedIndexPaths {
-                            self.collectionView.insertItems(at: [indexPath])
-                            self.photosCount += 1
-                        }
-                        for indexPath in self.deletedIndexPaths {
-                            self.collectionView.deleteItems(at: [indexPath])
-                            self.photosCount -= 1
-                        }
-                        for indexPath in self.updatedIndexPaths {
-                            self.collectionView.reloadItems(at: [indexPath])
-                        }
-                }, completion: nil)
+        collectionView!.performBatchUpdates({ () -> Void in
+            for operation: BlockOperation in self.blockOperations {
+                operation.start()
             }
-        }
-    }
-}
+        }, completion: { (_) -> Void in
+            self.blockOperations.removeAll(keepingCapacity: false)
+        })
+    }}
