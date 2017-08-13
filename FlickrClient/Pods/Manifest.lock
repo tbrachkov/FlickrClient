@@ -4,20 +4,23 @@ PODS:
     - SDWebImage/Core (= 3.8.2)
   - SDWebImage/Core (3.8.2)
   - SwiftLint (0.20.1)
+  - SwiftMessages (3.4.0)
   - SwiftyJSON (3.1.4)
 
 DEPENDENCIES:
   - ReachabilitySwift (~> 3)
   - SDWebImage (~> 3.8)
   - SwiftLint
+  - SwiftMessages
   - SwiftyJSON
 
 SPEC CHECKSUMS:
   ReachabilitySwift: f5b9bb30a0777fac8f09ce8b067e32faeb29bb64
   SDWebImage: 098e97e6176540799c27e804c96653ee0833d13c
   SwiftLint: f60095dc173a3f3ec505bb34f5229c3dfd779a54
+  SwiftMessages: e20aa1557fde1525ea369361bec4943cc0d08e7c
   SwiftyJSON: c2842d878f95482ffceec5709abc3d05680c0220
 
-PODFILE CHECKSUM: f454292aab8772fd2bd263305a329264edcb2ec5
+PODFILE CHECKSUM: 6b5fb60c18e8799fff4477efb11023361ab5ebf3
 
 COCOAPODS: 1.2.0

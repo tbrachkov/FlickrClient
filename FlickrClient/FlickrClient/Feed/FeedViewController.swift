@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import SwiftMessages
 
 class FeedViewController: UIViewController {
 
@@ -110,6 +111,25 @@ class FeedViewController: UIViewController {
             fatalError("Could not fetch photos")
         }
     }
+    
+    fileprivate func show(error: Error) {
+        let view = MessageView.viewFromNib(layout:.StatusLine)
+        view.configureContent(title: "Error", body: error.localizedDescription, iconImage: nil, iconText: nil, buttonImage: nil, buttonTitle: "Close", buttonTapHandler: { _ in SwiftMessages.hide() })
+        let iconStyle = IconStyle.default
+        view.configureTheme(.error, iconStyle: iconStyle)
+        
+        var config = SwiftMessages.Config()
+        config.presentationStyle = .top
+        config.presentationContext = .window(windowLevel: UIWindowLevelNormal)
+        config.duration = .forever
+        config.dimMode = .none
+        config.preferredStatusBarStyle = UIStatusBarStyle.lightContent
+        config.eventListeners.append(){ event in
+            if case .didHide = event { print("Hidden") }
+        }
+        SwiftMessages.show(config: config, view: view)
+    }
+
 }
 
 // MARK: - Search Logic -
@@ -154,6 +174,13 @@ extension FeedViewController: UISearchBarDelegate {
 extension FeedViewController: FeedPresenterOutput {
     func presentFetchedFlickrPhotos(_ presentData: Feed.DisplayData.FeedPhotoResult) {
         print(presentData)
+        switch presentData {
+        case .error(let error):
+            show(error: error)
+        default:
+            SwiftMessages.hide()
+            break
+        }
     }
     
     func returnFetchresultsController(_ frc: Feed.Response.ReturnFetchResultsController) {

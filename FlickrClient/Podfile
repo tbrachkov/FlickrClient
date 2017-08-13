@@ -6,6 +6,7 @@ target "FlickrClient" do
     pod 'ReachabilitySwift', '~> 3'
     pod 'SwiftLint'
     pod 'SwiftyJSON'
+    pod 'SwiftMessages'
 end
 
 target "FlickrKit" do
